@@ -1,371 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swipable Share Sheet</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
-      }
-
-      body {
-        overflow: hidden;
-        position: relative;
-        height: 100vh;
-        background-color: #f5f5f5;
-      }
-
-      .map-container {
-        width: 100%;
-        height: 100%;
-        background-color: #e0e0e0;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 24px;
-        color: #666;
-        background-image: url('/api/placeholder/400/400');
-        background-size: cover;
-        background-position: center;
-      }
-
-      .share-sheet {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        max-height: 90vh;
-        background-color: white;
-        border-radius: 16px 16px 0 0;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 100;
-        overflow: hidden;
-        touch-action: none;
-      }
-
-      .drag-handle {
-        width: 40px;
-        height: 5px;
-        background-color: #ddd;
-        border-radius: 3px;
-        margin: 12px auto;
-        cursor: grab;
-      }
-
-      .sheet-content {
-        padding: 0 20px 20px;
-        overflow-y: auto;
-        max-height: calc(90vh - 40px);
-      }
-
-      .sheet-header {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 20px;
-      }
-
-      .share-options {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 20px;
-      }
-
-      @media (max-width: 600px) {
-        .share-options {
-          grid-template-columns: repeat(3, 1fr);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
-      }
 
-      @media (max-width: 400px) {
-        .share-options {
-          grid-template-columns: repeat(2, 1fr);
+        body {
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            background-color: #f5f5f5;
         }
-      }
 
-      .share-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-      }
+        .map-container {
+            width: 100%;
+            height: 100%;
+            background-color: #e0e0e0;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #666;
+            background-image: url('/api/placeholder/400/400');
+            background-size: cover;
+            background-position: center;
+        }
 
-      .share-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background-color: #f0f0f0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 20px;
-        color: #444;
-      }
+        .share-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 90vh; /* Set a fixed height to ensure proper percentage calculations */
+            background-color: white;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            /* Initially show 30% of the sheet */
+            transform: translateY(70vh);
+            transition: transform 0.3s ease;
+        }
 
-      .share-label {
-        font-size: 12px;
-        text-align: center;
-      }
+        .drag-handle {
+            width: 40px;
+            height: 5px;
+            background-color: #ddd;
+            border-radius: 3px;
+            margin: 12px auto;
+            cursor: grab;
+        }
 
-      .action-buttons {
-        display: grid;
-        gap: 12px;
-      }
+        .sheet-content {
+            padding: 0 20px 20px;
+            overflow-y: auto;
+            height: calc(90vh - 30px);
+        }
 
-      .action-button {
-        display: flex;
-        align-items: center;
-        padding: 12px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        cursor: pointer;
-      }
+        .sheet-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
 
-      .action-icon {
-        margin-right: 16px;
-        width: 24px;
-        height: 24px;
-        background-color: #eee;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 14px;
-        color: #444;
-      }
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
 
-      .action-text {
-        font-size: 14px;
-      }
+        @media (max-width: 600px) {
+            .share-options {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .share-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #444;
+        }
+
+        .share-label {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: grid;
+            gap: 12px;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .action-icon {
+            margin-right: 16px;
+            width: 24px;
+            height: 24px;
+            background-color: #eee;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .action-text {
+            font-size: 14px;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="map-container">Map View</div>
     <div id="shareSheet" class="share-sheet">
-      <div class="drag-handle"></div>
-      <div class="sheet-content">
-        <div class="sheet-header">Share</div>
-
-        <div class="share-options">
-          <div class="share-option">
-            <div class="share-icon">W</div>
-            <div class="share-label">WhatsApp</div>
-          </div>
-          <div class="share-option">
-            <div class="share-icon">F</div>
-            <div class="share-label">Facebook</div>
-          </div>
-          <div class="share-option">
-            <div class="share-icon">T</div>
-            <div class="share-label">Twitter</div>
-          </div>
-          <div class="share-option">
-            <div class="share-icon">G</div>
-            <div class="share-label">Gmail</div>
-          </div>
-          <div class="share-option">
-            <div class="share-icon">C</div>
-            <div class="share-label">Copy Link</div>
-          </div>
-          <div class="share-option">
-            <div class="share-icon">M</div>
-            <div class="share-label">Messages</div>
-          </div>
-          <div class="share-option">
-            <div class="share-icon">I</div>
-            <div class="share-label">Instagram</div>
-          </div>
-          <div class="share-option">
-            <div class="share-icon">+</div>
-            <div class="share-label">More</div>
-          </div>
+        <div class="drag-handle"></div>
+        <div class="sheet-content">
+            <div class="sheet-header">Share</div>
+            
+            <div class="share-options">
+                <div class="share-option">
+                    <div class="share-icon">W</div>
+                    <div class="share-label">WhatsApp</div>
+                </div>
+                <div class="share-option">
+                    <div class="share-icon">F</div>
+                    <div class="share-label">Facebook</div>
+                </div>
+                <div class="share-option">
+                    <div class="share-icon">T</div>
+                    <div class="share-label">Twitter</div>
+                </div>
+                <div class="share-option">
+                    <div class="share-icon">G</div>
+                    <div class="share-label">Gmail</div>
+                </div>
+                <div class="share-option">
+                    <div class="share-icon">C</div>
+                    <div class="share-label">Copy Link</div>
+                </div>
+                <div class="share-option">
+                    <div class="share-icon">M</div>
+                    <div class="share-label">Messages</div>
+                </div>
+                <div class="share-option">
+                    <div class="share-icon">I</div>
+                    <div class="share-label">Instagram</div>
+                </div>
+                <div class="share-option">
+                    <div class="share-icon">+</div>
+                    <div class="share-label">More</div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <div class="action-button">
+                    <div class="action-icon">S</div>
+                    <div class="action-text">Save</div>
+                </div>
+                <div class="action-button">
+                    <div class="action-icon">D</div>
+                    <div class="action-text">Directions</div>
+                </div>
+                <div class="action-button">
+                    <div class="action-icon">N</div>
+                    <div class="action-text">Nearby</div>
+                </div>
+                <div class="action-button">
+                    <div class="action-icon">L</div>
+                    <div class="action-text">Label</div>
+                </div>
+            </div>
         </div>
-
-        <div class="action-buttons">
-          <div class="action-button">
-            <div class="action-icon">S</div>
-            <div class="action-text">Save</div>
-          </div>
-          <div class="action-button">
-            <div class="action-icon">D</div>
-            <div class="action-text">Directions</div>
-          </div>
-          <div class="action-button">
-            <div class="action-icon">N</div>
-            <div class="action-text">Nearby</div>
-          </div>
-          <div class="action-button">
-            <div class="action-icon">L</div>
-            <div class="action-text">Label</div>
-          </div>
-        </div>
-      </div>
     </div>
-
+    
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const shareSheet = document.getElementById('shareSheet');
-        let startY, currentY, initialY;
-        let sheetHeight, viewportHeight;
-
-        // Sheet positions
-        const POSITIONS = {
-          CLOSED: 0,
-          PEEK: 0.3,
-          HALF: 0.5,
-          FULL: 0.9,
-        };
-
-        let currentPosition = POSITIONS.PEEK;
-
-        function initializeSheet() {
-          viewportHeight = window.innerHeight;
-          sheetHeight = shareSheet.offsetHeight;
-
-          // Set initial position (peek state)
-          setSheetPosition(POSITIONS.PEEK, false);
-
-          // Make sure the sheet is visible by default
-          setTimeout(() => {
-            shareSheet.style.visibility = 'visible';
-          }, 100);
-        }
-
-        function setSheetPosition(positionPercent, animated = true) {
-          currentPosition = positionPercent;
-          const translateY = (1 - positionPercent) * viewportHeight;
-
-          if (animated) {
-            shareSheet.style.transition = 'transform 0.3s ease';
-          } else {
-            shareSheet.style.transition = 'none';
-          }
-
-          shareSheet.style.transform = `translateY(${translateY}px)`;
-        }
-
-        function onDragStart(e) {
-          shareSheet.style.transition = 'none';
-          startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-          initialY =
-            parseFloat(getComputedStyle(shareSheet).transform.split(',')[5]) ||
-            0;
-
-          document.addEventListener('mousemove', onDragMove);
-          document.addEventListener('touchmove', onDragMove, {
-            passive: false,
-          });
-          document.addEventListener('mouseup', onDragEnd);
-          document.addEventListener('touchend', onDragEnd);
-        }
-
-        function onDragMove(e) {
-          e.preventDefault();
-          currentY = e.type.includes('touch')
-            ? e.touches[0].clientY
-            : e.clientY;
-          const dragDelta = currentY - startY;
-
-          // Calculate new position
-          let newTranslateY = initialY + dragDelta;
-
-          // Constrain to bounds
-          newTranslateY = Math.max(
-            viewportHeight * (1 - POSITIONS.FULL),
-            newTranslateY
-          );
-          newTranslateY = Math.min(viewportHeight, newTranslateY);
-
-          shareSheet.style.transform = `translateY(${newTranslateY}px)`;
-        }
-
-        function onDragEnd() {
-          const currentTranslateY =
-            parseFloat(getComputedStyle(shareSheet).transform.split(',')[5]) ||
-            0;
-          const currentPositionPercent = 1 - currentTranslateY / viewportHeight;
-
-          // Determine which position to snap to based on current position
-          if (
-            currentPositionPercent <
-            (POSITIONS.PEEK + POSITIONS.CLOSED) / 2
-          ) {
-            setSheetPosition(POSITIONS.CLOSED);
-          } else if (
-            currentPositionPercent <
-            (POSITIONS.PEEK + POSITIONS.HALF) / 2
-          ) {
-            setSheetPosition(POSITIONS.PEEK);
-          } else if (
-            currentPositionPercent <
-            (POSITIONS.HALF + POSITIONS.FULL) / 2
-          ) {
-            setSheetPosition(POSITIONS.HALF);
-          } else {
-            setSheetPosition(POSITIONS.FULL);
-          }
-
-          document.removeEventListener('mousemove', onDragMove);
-          document.removeEventListener('touchmove', onDragMove);
-          document.removeEventListener('mouseup', onDragEnd);
-          document.removeEventListener('touchend', onDragEnd);
-        }
-
-        // Handle wheel events for desktop
-        function onWheel(e) {
-          e.preventDefault();
-          const currentTranslateY =
-            parseFloat(getComputedStyle(shareSheet).transform.split(',')[5]) ||
-            0;
-          const currentPositionPercent = 1 - currentTranslateY / viewportHeight;
-
-          // Scroll up (negative delta) means expand, scroll down means collapse
-          let newPosition = currentPositionPercent;
-
-          if (e.deltaY < 0) {
-            // Scrolling up - go to next higher position
-            if (currentPositionPercent < POSITIONS.PEEK)
-              newPosition = POSITIONS.PEEK;
-            else if (currentPositionPercent < POSITIONS.HALF)
-              newPosition = POSITIONS.HALF;
-            else if (currentPositionPercent < POSITIONS.FULL)
-              newPosition = POSITIONS.FULL;
-          } else {
-            // Scrolling down - go to next lower position
-            if (currentPositionPercent > POSITIONS.HALF)
-              newPosition = POSITIONS.HALF;
-            else if (currentPositionPercent > POSITIONS.PEEK)
-              newPosition = POSITIONS.PEEK;
-            else if (currentPositionPercent > POSITIONS.CLOSED)
-              newPosition = POSITIONS.CLOSED;
-          }
-
-          setSheetPosition(newPosition);
-        }
-
-        function addEventListeners() {
-          // Make entire sheet draggable
-          shareSheet.addEventListener('mousedown', onDragStart);
-          shareSheet.addEventListener('touchstart', onDragStart, {
-            passive: true,
-          });
-
-          // // Add mouse wheel support
-          // shareSheet.addEventListener('wheel', onWheel, { passive: false });
-
-          // Handle window resize
-          window.addEventListener('resize', initializeSheet);
-        }
-
-        // Initialize the sheet
-        initializeSheet();
-        addEventListeners();
-      });
+        document.addEventListener('DOMContentLoaded', function() {
+            const shareSheet = document.getElementById('shareSheet');
+            let startY, currentY, initialY;
+            let viewportHeight;
+            
+            // Sheet positions (percentage of viewport height)
+            const POSITIONS = {
+                CLOSED: 0,
+                PEEK: 0.3,    // 30% visible
+                HALF: 0.5,    // 50% visible
+                FULL: 0.9     // 90% visible
+            };
+            
+            let currentPosition = POSITIONS.PEEK;
+            
+            function initializeSheet() {
+                viewportHeight = window.innerHeight;
+                
+                // Explicitly set the initial position to show 30% of the sheet
+                setSheetPosition(POSITIONS.PEEK, false);
+            }
+            
+            function setSheetPosition(positionPercent, animated = true) {
+                currentPosition = positionPercent;
+                // Calculate how much to translate (as a viewport height percentage)
+                const translateY = viewportHeight * (1 - positionPercent);
+                
+                if (animated) {
+                    shareSheet.style.transition = 'transform 0.3s ease';
+                } else {
+                    shareSheet.style.transition = 'none';
+                }
+                
+                shareSheet.style.transform = `translateY(${translateY}px)`;
+            }
+            
+            function onDragStart(e) {
+                // Only handle the drag from the sheet itself, not from content scrolling
+                if (e.target.closest('.sheet-content') && !e.target.closest('.drag-handle')) {
+                    return;
+                }
+                
+                e.preventDefault();
+                shareSheet.style.transition = 'none';
+                startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                initialY = parseFloat(getComputedStyle(shareSheet).transform.split(',')[5]) || 0;
+                
+                document.addEventListener('mousemove', onDragMove);
+                document.addEventListener('touchmove', onDragMove, { passive: false });
+                document.addEventListener('mouseup', onDragEnd);
+                document.addEventListener('touchend', onDragEnd);
+            }
+            
+            function onDragMove(e) {
+                e.preventDefault();
+                currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                const dragDelta = currentY - startY;
+                
+                // Calculate new position
+                let newTranslateY = initialY + dragDelta;
+                
+                // Constrain to bounds
+                newTranslateY = Math.max(viewportHeight * (1 - POSITIONS.FULL), newTranslateY);
+                newTranslateY = Math.min(viewportHeight, newTranslateY);
+                
+                shareSheet.style.transform = `translateY(${newTranslateY}px)`;
+            }
+            
+            function onDragEnd() {
+                const currentTranslateY = parseFloat(getComputedStyle(shareSheet).transform.split(',')[5]) || 0;
+                const currentPositionPercent = 1 - (currentTranslateY / viewportHeight);
+                
+                // Determine which position to snap to based on current position
+                if (currentPositionPercent < (POSITIONS.PEEK + POSITIONS.CLOSED) / 2) {
+                    setSheetPosition(POSITIONS.CLOSED);
+                } else if (currentPositionPercent < (POSITIONS.PEEK + POSITIONS.HALF) / 2) {
+                    setSheetPosition(POSITIONS.PEEK);
+                } else if (currentPositionPercent < (POSITIONS.HALF + POSITIONS.FULL) / 2) {
+                    setSheetPosition(POSITIONS.HALF);
+                } else {
+                    setSheetPosition(POSITIONS.FULL);
+                }
+                
+                document.removeEventListener('mousemove', onDragMove);
+                document.removeEventListener('touchmove', onDragMove);
+                document.removeEventListener('mouseup', onDragEnd);
+                document.removeEventListener('touchend', onDragEnd);
+            }
+            
+            // Handle wheel events for desktop
+            function onWheel(e) {
+                // Only handle wheel events on the drag handle or directly on the sheet (not content)
+                if (e.target.closest('.sheet-content') && !e.target.closest('.drag-handle')) {
+                    return;
+                }
+                
+                e.preventDefault();
+                const currentTranslateY = parseFloat(getComputedStyle(shareSheet).transform.split(',')[5]) || 0;
+                const currentPositionPercent = 1 - (currentTranslateY / viewportHeight);
+                
+                // Scroll up (negative delta) means expand, scroll down means collapse
+                let newPosition = currentPositionPercent;
+                
+                if (e.deltaY < 0) {
+                    // Scrolling up - go to next higher position
+                    if (currentPositionPercent < POSITIONS.PEEK) newPosition = POSITIONS.PEEK;
+                    else if (currentPositionPercent < POSITIONS.HALF) newPosition = POSITIONS.HALF;
+                    else if (currentPositionPercent < POSITIONS.FULL) newPosition = POSITIONS.FULL;
+                } else {
+                    // Scrolling down - go to next lower position
+                    if (currentPositionPercent > POSITIONS.HALF) newPosition = POSITIONS.HALF;
+                    else if (currentPositionPercent > POSITIONS.PEEK) newPosition = POSITIONS.PEEK;
+                    else if (currentPositionPercent > POSITIONS.CLOSED) newPosition = POSITIONS.CLOSED;
+                }
+                
+                setSheetPosition(newPosition);
+            }
+            
+            function addEventListeners() {
+                // Make entire sheet draggable
+                shareSheet.addEventListener('mousedown', onDragStart);
+                shareSheet.addEventListener('touchstart', onDragStart, { passive: false });
+                
+                // Add mouse wheel support
+                //shareSheet.addEventListener('wheel', onWheel, { passive: false });
+                
+                // Handle window resize
+                window.addEventListener('resize', initializeSheet);
+            }
+            
+            // Initialize the sheet
+            initializeSheet();
+            addEventListeners();
+        });
     </script>
-  </body>
+</body>
 </html>
